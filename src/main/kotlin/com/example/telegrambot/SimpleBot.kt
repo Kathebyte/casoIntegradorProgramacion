@@ -34,8 +34,9 @@ class SimpleBot(
                         messageText.startsWith("/resumen") -> formatSummary()
                         messageText.startsWith("/insertar") -> handleInsert(messageText)
                         messageText.startsWith("/actualizar") -> handleUpdate(messageText)
+                        messageText.startsWith("/eliminar") -> handleDelete(messageText)
                         else ->
-                                "¡Hola! Soy el asistente de la tienda de Doña Rosa. \n\n Usa /inventario para ver los productos, \n/resumen para el valor total, \n/insertar NOMBRE PRECIO CANTIDAD para agregar, \no /actualizar CODIGO CANTIDAD PRECIO para modificar."
+                                "¡Hola! Soy el asistente de la tienda de Doña Rosa.\n\n Usa /inventario para ver los productos, \n/resumen para el valor total, \n/insertar NOMBRE PRECIO CANTIDAD para agregar, \no /actualizar CODIGO CANTIDAD PRECIO para modificar. \no /eliminar CODIGO para eliminar."
                     }
 
             val response =
@@ -114,5 +115,23 @@ class SimpleBot(
             💰 Valor Total: $$totalValue
             ⚠️ Productos con bajo stock (10%): $lowStockNames
         """.trimIndent()
+    }
+
+    private fun handleDelete(text: String): String {
+        val parts = text.split(" ")
+        if (parts.size < 2) {
+            return "❌ Formato incorrecto. Usa: `/eliminar CODIGO`"
+        }
+
+        return try {
+            val code = parts[1].toInt()
+            if (inventoryService.deleteProduct(code)) {
+                "✅ ¡Listo! Producto *$code* eliminado."
+            } else {
+                "❌ Error: No se encontró un producto con el código $code."
+            }
+        } catch (e: Exception) {
+            "❌ Error: Asegúrate de usar números para el código."
+        }
     }
 }

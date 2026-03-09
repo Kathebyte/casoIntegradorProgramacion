@@ -45,4 +45,8 @@ class InventoryService {
             false
         }
     }
+
+    fun deleteProduct(code: Int): Boolean {
+        return products.removeIf { it.code == code }
+    }
 }
