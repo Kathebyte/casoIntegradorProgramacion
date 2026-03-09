@@ -99,7 +99,9 @@ class SimpleBot(
         products.forEach { p ->
             val lowStockAlert =
                     if (p.quantity <= p.initialQuantity * 0.1) " ⚠️ (Bajo stock)" else ""
-            sb.append("${p.code}. ${p.name} - $${p.price} | Cant: ${p.quantity}$lowStockAlert\n")
+            sb.append(
+                    "${p.code ?: "N/A"}. ${p.name} - $${p.price} | Cant: ${p.quantity}$lowStockAlert\n"
+            )
         }
         return sb.toString()
     }
