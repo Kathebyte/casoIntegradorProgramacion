@@ -35,8 +35,9 @@ class SimpleBot(
                         messageText.startsWith("/insertar") -> handleInsert(messageText)
                         messageText.startsWith("/actualizar") -> handleUpdate(messageText)
                         messageText.startsWith("/eliminar") -> handleDelete(messageText)
+                        messageText.startsWith("/venta") -> handleSale(messageText)
                         else ->
-                                "¡Hola! Soy el asistente de la tienda de Doña Rosa.\n\n Usa /inventario para ver los productos, \n/resumen para el valor total, \n/insertar NOMBRE PRECIO CANTIDAD para agregar, \no /actualizar CODIGO CANTIDAD PRECIO para modificar. \no /eliminar CODIGO para eliminar."
+                                "¡Hola! Soy el asistente de la tienda de Doña Rosa.\n\n Usa /inventario para ver los productos, \n/resumen para el valor total, \n/insertar NOMBRE PRECIO CANTIDAD para agregar, \no /actualizar CODIGO CANTIDAD PRECIO para modificar. \no /eliminar CODIGO para eliminar. \no /venta CODIGO CANTIDAD para registrar una venta."
                     }
 
             val response =
@@ -134,6 +135,35 @@ class SimpleBot(
             }
         } catch (e: Exception) {
             "❌ Error: Asegúrate de usar números para el código."
+        }
+    }
+
+    private fun handleSale(text: String): String {
+        val parts = text.split(" ")
+        if (parts.size < 3) {
+            return "❌ Formato incorrecto. Usa: `/venta CODIGO CANTIDAD`"
+        }
+
+        return try {
+            val code = parts[1].toInt()
+            val qty = parts[2].toInt()
+
+            val updatedProduct = inventoryService.updateStock(code, qty)
+            if (updatedProduct != null) {
+                var response =
+                        "✅ ¡Venta registrada! Se vendieron $qty unidades de *${updatedProduct.name}*."
+
+                // Alerta proactiva de bajo stock
+                if (updatedProduct.quantity <= updatedProduct.initialQuantity * 0.1) {
+                    response +=
+                            "\n\n⚠️ *¡ALERTA DE STOCK BAJO!* ⚠️\nEl producto *${updatedProduct.name}* tiene solo ${updatedProduct.quantity} unidades restantes (menos del 10% del stock inicial)."
+                }
+                response
+            } else {
+                "❌ Error: No hay suficiente stock para esta venta o el producto no existe."
+            }
+        } catch (e: Exception) {
+            "❌ Error: Asegúrate de usar números para código y cantidad."
         }
     }
 }

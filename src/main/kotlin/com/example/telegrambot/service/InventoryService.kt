@@ -99,6 +99,7 @@ class InventoryService(private val productRepository: ProductRepository) {
         if (productOptional.isPresent) {
             val product = productOptional.get()
             product.quantity = newQuantity
+            product.initialQuantity = newQuantity // Se actualiza la base para el cálculo del 10%
             product.price = newPrice
             productRepository.save(product)
             return true
@@ -112,5 +113,17 @@ class InventoryService(private val productRepository: ProductRepository) {
             return true
         }
         return false
+    }
+
+    fun updateStock(code: Int, soldQuantity: Int): Product? {
+        val productOptional = productRepository.findById(code)
+        if (productOptional.isPresent) {
+            val product = productOptional.get()
+            if (product.quantity >= soldQuantity) {
+                product.quantity -= soldQuantity
+                return productRepository.save(product)
+            }
+        }
+        return null
     }
 }
