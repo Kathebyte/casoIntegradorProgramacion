@@ -33,8 +33,9 @@ class SimpleBot(
                         messageText.startsWith("/inventario") -> formatInventory()
                         messageText.startsWith("/resumen") -> formatSummary()
                         messageText.startsWith("/insertar") -> handleInsert(messageText)
+                        messageText.startsWith("/actualizar") -> handleUpdate(messageText)
                         else ->
-                                "¡Hola! Soy el asistente de la tienda de Doña Rosa. Usa /inventario para ver los productos o /resumen para el valor total."
+                                "¡Hola! Soy el asistente de la tienda de Doña Rosa. \n\n Usa /inventario para ver los productos, \n/resumen para el valor total, \n/insertar NOMBRE PRECIO CANTIDAD para agregar, \no /actualizar CODIGO CANTIDAD PRECIO para modificar."
                     }
 
             val response =
@@ -49,6 +50,45 @@ class SimpleBot(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    private fun handleInsert(text: String): String {
+        val parts = text.split(" ")
+        if (parts.size < 4) {
+            return "❌ Formato incorrecto. Usa: `/insertar NOMBRE PRECIO CANTIDAD`"
+        }
+
+        return try {
+            val name = parts[1]
+            val price = parts[2].toDouble()
+            val qty = parts[3].toInt()
+
+            inventoryService.insertProduct(name, price, qty)
+            "✅ ¡Listo! El producto *${name}* ha sido agregado."
+        } catch (e: Exception) {
+            "❌ Error: Asegúrate de que el precio y cantidad sean números."
+        }
+    }
+
+    private fun handleUpdate(text: String): String {
+        val parts = text.split(" ")
+        if (parts.size < 4) {
+            return "❌ Formato incorrecto. Usa: `/actualizar CODIGO CANTIDAD PRECIO`"
+        }
+
+        return try {
+            val code = parts[1].toInt()
+            val qty = parts[2].toInt()
+            val price = parts[3].toDouble()
+
+            if (inventoryService.updateProduct(code, qty, price)) {
+                "✅ ¡Listo! Producto *$code* actualizado (Cant: $qty, Precio: $$price)."
+            } else {
+                "❌ Error: No se encontró un producto con el código $code."
+            }
+        } catch (e: Exception) {
+            "❌ Error: Asegúrate de usar números para código, cantidad y precio."
         }
     }
 
@@ -74,25 +114,5 @@ class SimpleBot(
             💰 Valor Total: $$totalValue
             ⚠️ Productos con bajo stock (10%): $lowStockNames
         """.trimIndent()
-    }
-
-    private fun handleInsert(text: String): String {
-        // Formato esperado: /insertar NOMBRE PRECIO CANTIDAD
-        // Ejemplo: /insertar Papas 2500 100
-        val parts = text.split(" ")
-        if (parts.size < 4) {
-            return "❌ Formato incorrecto. Usa: `/insertar NOMBRE PRECIO CANTIDAD`\n\nEjemplo: `/insertar Papas 2500 100`"
-        }
-
-        return try {
-            val name = parts[1]
-            val price = parts[2].toDouble()
-            val qty = parts[3].toInt()
-
-            inventoryService.insertProduct(name, price, qty)
-            "✅ ¡Listo! El producto *${name}* ha sido agregado con un código automático."
-        } catch (e: Exception) {
-            "❌ Error: Asegúrate de que el precio y cantidad sean números."
-        }
     }
 }

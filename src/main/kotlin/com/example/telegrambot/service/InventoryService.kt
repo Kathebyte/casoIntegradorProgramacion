@@ -34,4 +34,15 @@ class InventoryService {
         val newProduct = Product(newCode, name, price, quantity, quantity)
         products.add(newProduct)
     }
+
+    fun updateProduct(code: Int, newQuantity: Int, newPrice: Double): Boolean {
+        val product = products.find { it.code == code }
+        return if (product != null) {
+            product.quantity = newQuantity
+            product.price = newPrice
+            true
+        } else {
+            false
+        }
+    }
 }
