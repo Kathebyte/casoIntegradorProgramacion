@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<kotlin.version>1.9.22</kotlin.version>
+		<kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -60,6 +61,7 @@
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
 				<configuration>
+					<jvmTarget>${java.version}</jvmTarget>
 					<args>
 						<arg>-Xjsr305=strict</arg>
 					</args>
