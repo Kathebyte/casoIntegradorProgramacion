@@ -32,6 +32,7 @@ class SimpleBot(
                     when {
                         messageText.startsWith("/inventario") -> formatInventory()
                         messageText.startsWith("/resumen") -> formatSummary()
+                        messageText.startsWith("/insertar") -> handleInsert(messageText)
                         else ->
                                 "¡Hola! Soy el asistente de la tienda de Doña Rosa. Usa /inventario para ver los productos o /resumen para el valor total."
                     }
@@ -73,5 +74,25 @@ class SimpleBot(
             💰 Valor Total: $$totalValue
             ⚠️ Productos con bajo stock (10%): $lowStockNames
         """.trimIndent()
+    }
+
+    private fun handleInsert(text: String): String {
+        // Formato esperado: /insertar NOMBRE PRECIO CANTIDAD
+        // Ejemplo: /insertar Papas 2500 100
+        val parts = text.split(" ")
+        if (parts.size < 4) {
+            return "❌ Formato incorrecto. Usa: `/insertar NOMBRE PRECIO CANTIDAD`\n\nEjemplo: `/insertar Papas 2500 100`"
+        }
+
+        return try {
+            val name = parts[1]
+            val price = parts[2].toDouble()
+            val qty = parts[3].toInt()
+
+            inventoryService.insertProduct(name, price, qty)
+            "✅ ¡Listo! El producto *${name}* ha sido agregado con un código automático."
+        } catch (e: Exception) {
+            "❌ Error: Asegúrate de que el precio y cantidad sean números."
+        }
     }
 }

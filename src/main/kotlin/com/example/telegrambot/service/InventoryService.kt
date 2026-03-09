@@ -28,4 +28,10 @@ class InventoryService {
     fun getLowStockProducts(): List<Product> {
         return products.filter { it.quantity <= it.initialQuantity * 0.1 }
     }
+
+    fun insertProduct(name: String, price: Double, quantity: Int) {
+        val newCode = products.size + 1
+        val newProduct = Product(newCode, name, price, quantity, quantity)
+        products.add(newProduct)
+    }
 }
